@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import { Pool } from 'pg';
 
 const app = express();
-const connectionString = process.env.POSTGRES_URI || 'postgres://localhost/leancloud_tests';
+const connectionString = process.env.PG_URI || 'postgres://localhost/leancloud_tests';
 const pgPool = new Pool({ connectionString });
 
 app.use(compression());
