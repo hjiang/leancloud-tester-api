@@ -1,11 +1,15 @@
 import express from 'express';
 import compression from "compression";  // compresses requests
 import bodyParser from "body-parser";
+var cors = require('cors')
 import { Pool } from 'pg';
 
 const app = express();
 const connectionString = process.env.PG_URI || 'postgres://localhost/leancloud_tests';
 const pgPool = new Pool({ connectionString });
+
+app.options('*', cors())
+app.use(cors())
 
 app.use(compression());
 app.use(bodyParser.json());
