@@ -38,7 +38,24 @@ app.get('/api/tests/:name/results/', async (req, res) => {
     `SELECT * FROM results WHERE test_name = $1 ORDER BY id DESC LIMIT 100;`,
     [req.params.name]
   );
-  const jsonResponse = results.rows.map(row => { 
+  const jsonResponse = results.rows.map(row => {
+    return {
+      id: row.id,
+      passed: row.is_successful,
+      finishedAt: row.created_at,
+      info: row.info
+    };
+  });
+  res.json(jsonResponse);
+});
+
+app.get('/api/tests/:name/failures/', async (req, res) => {
+  const results = await pgPool.query(
+    `SELECT * FROM results WHERE test_name = $1 AND is_successful = false
+    ORDER BY id DESC LIMIT 100;`,
+    [req.params.name]
+  );
+  const jsonResponse = results.rows.map(row => {
     return {
       id: row.id,
       passed: row.is_successful,
