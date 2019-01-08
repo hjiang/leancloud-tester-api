@@ -19,15 +19,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/api/tests/', async (_, res) => {
   const results = await pgPool.query(
-    `WITH ranked_results AS (SELECT *, row_number() OVER
-      (PARTITION BY test_name ORDER BY id DESC) as rn FROM results)
-      SELECT * from ranked_results where rn = 1;`);
+    `SELECT * from latest_results;`);
   const jsonResponse = results.rows.map(row => {
     return {
-      id: row.id,
+      id: row.result_id,
       name: row.test_name,
       passed: row.is_successful,
-      updatedAt: row.created_at
+      updatedAt: row.time
     }
   });
   res.json(jsonResponse);
