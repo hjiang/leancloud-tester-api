@@ -31,6 +31,29 @@ app.get('/api/tests/', async (_, res) => {
   res.json(jsonResponse);
 });
 
+const getRecentDowntimes = async (name: string, limit: number) => {
+  const dbResult = await pgPool.query(`
+    SELECT * FROM downtimes WHERE test_name= $1 ORDER BY id DESC LIMIT $2;`,
+    [name, limit]);
+  return dbResult.rows.map(row => {
+    return {
+      id: row.id,
+      startResultId: row.start_result_id,
+      startTime: row.start_time,
+      endResultId: row.end_result_id,
+      endTime: row.end_time
+    };
+  });
+};
+
+app.get('/api/tests/:name/downtimes/latest', async (req, res) => {
+  res.json(await getRecentDowntimes(req.params.name, 1));
+});
+
+app.get('/api/tests/:name/downtimes/', async (req, res) => {
+  res.json(await getRecentDowntimes(req.params.name, 100));
+});
+
 app.get('/api/tests/:name/results/', async (req, res) => {
   const results = await pgPool.query(
     `SELECT * FROM results WHERE test_name = $1 ORDER BY id DESC LIMIT 100;`,
