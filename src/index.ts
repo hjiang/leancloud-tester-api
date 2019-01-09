@@ -54,6 +54,22 @@ app.get('/api/tests/:name/downtimes/', async (req, res) => {
   res.json(await getRecentDowntimes(req.params.name, 100));
 });
 
+app.get('/api/tests/:name/results/:startId/:endId', async (req, res) => {
+  const results = await pgPool.query(
+    `SELECT * FROM results WHERE test_name = $1 AND id >= $2 AND id <= $3 ORDER BY id DESC;`,
+    [req.params.name, req.params.startId, req.params.endId]
+  );
+  const jsonResponse = results.rows.map(row => {
+    return {
+      id: row.id,
+      passed: row.is_successful,
+      finishedAt: row.created_at,
+      info: row.info
+    };
+  });
+  res.json(jsonResponse);
+});
+
 app.get('/api/tests/:name/results/', async (req, res) => {
   const results = await pgPool.query(
     `SELECT * FROM results WHERE test_name = $1 ORDER BY id DESC LIMIT 100;`,
